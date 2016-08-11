@@ -21,7 +21,7 @@
 new g_hudmsg1, g_hudmsg2
 
 public plugin_init() {
-	register_plugin("ZP Bullet Damager | Hud HP", "1.0.40.7a", "L4D2")
+	register_plugin("ZP Bullet Damager | Hud HP", "1.0.41.0", "L4D2")
 	
 	RegisterHam(Ham_TakeDamage, "player", "Player_TakeDamage", true)
 	register_event("Damage", "DamageR", "b", "2!0", "3=0", "4!0")
@@ -59,19 +59,6 @@ public Player_TakeDamage(victim, inflictor, attacker, Float:damage, damage_type)
 	#if defined SUPPORT_ZP_50
 	if(victim == attacker || !is_user_alive(attacker) || !is_user_connected(victim) || zp_core_is_zombie(attacker)) return HAM_IGNORED
 	#endif
-	
-	static attacker; attacker = get_user_attacker(victim)
-	static damage; damage = read_data(2)
-	
-	set_hudmessage(0, 100, 200, -1.0, 0.55, 2, 0.1, 4.0, 0.02, 0.02, -1)
-	
-	switch(attacker) {
-		case 1: ShowSyncHudMsg(attacker, g_hudmsg1, "%d^n", damage)
-		case 2: {
-			if(fm_is_ent_visible(attacker, victim))
-				ShowSyncHudMsg(attacker, g_hudmsg2, "%d^n", damage)
-		}
-	}
 	
 	new iVictimHealth = get_user_health(victim)
 	if(iVictimHealth < 0) iVictimHealth = 0
