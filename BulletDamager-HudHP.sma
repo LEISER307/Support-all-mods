@@ -17,7 +17,7 @@
 new g_hudmsg1
 
 public plugin_init() {
-	register_plugin("ZP Bullet Damager | Hud HP", "1.0.41.7m", "L4D2")
+	register_plugin("ZP Bullet Damager | Hud HP", "1.0.41.8a", "L4D2")
 	
 	register_event("Damage", "Event_Damage", "b", "2>0", "3=0")
 	
@@ -28,11 +28,11 @@ public Event_Damage( iVictim, iAttacker ) {
 	new id = get_user_attacker(iVictim)
 	if( (1 <= id <= 32) && is_user_connected(id) ) {
 		#if defined SUPPORT_ZP_43
-		if(iVictim == id || !is_user_alive(id) || zp_get_user_zombie(id)) return HAM_IGNORED
+		if(iVictim == id || !is_user_alive(id) || zp_get_user_zombie(id)) return
 		#endif
 		
 		#if defined SUPPORT_BIO
-		if(iVictim == id || !is_user_alive(id) || is_user_infected(id) || is_user_zombie(id)) return HAM_IGNORED
+		if(iVictim == id || !is_user_alive(id) || is_user_infected(id) || is_user_zombie(id)) return
 		#endif
 		
 		static damage; damage = read_data(2)
@@ -45,6 +45,4 @@ public Event_Damage( iVictim, iAttacker ) {
 		
 		client_print(id, print_center, "HP: %d", iVictimHealth)
 	}
-	
-	return HAM_IGNORED
 }
