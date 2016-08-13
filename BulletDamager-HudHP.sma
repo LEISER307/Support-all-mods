@@ -9,7 +9,7 @@
 #endif
 
 public plugin_init() {
-	register_plugin("ZP Bullet Damager | Hud HP", "1.0.42", "L4D2");
+	register_plugin("Zombie Bullet Damager | Hud HP", "1.0.42", "L4D2");
 	
 	register_event("Damage", "EventDamage", "b", "2!0", "3=0", "4!0");
 }
