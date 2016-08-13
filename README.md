@@ -2,4 +2,4 @@
 
 
 >[[ZP|Bio]BulletDamager | HudHP](http://amx-x.ru/viewtopic.php?f=12&t=36156 "Поддерживаемый ресурс")
->>**Stable version 1.0.41.7m**
+>>**Stable version 1.0.42**
