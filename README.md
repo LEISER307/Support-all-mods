@@ -7,3 +7,7 @@
 >***
 >[Aiming Teleport Player](http://amx-x.ru/viewtopic.php?f=11&t=35965#p285271 "Поддерживаемый ресурс")
 >>**Stable version 0.5.2.2**
+
+>***
+>[Fix HP Knife Map Spawn](http://dev-cs.ru/resources/86/ "Поддерживаемый ресурс")
+>>**Stable version 0.0.1.9**
