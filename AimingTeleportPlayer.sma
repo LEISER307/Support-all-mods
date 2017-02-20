@@ -1,16 +1,29 @@
-/*   Changelog:
-		v0.4.2 - First Release
-		v0.5.1 - Add support Zombie Plague
-		v0.5.2.2 - Fixed to Sky bugs Thanks for Subb98
+/*********************************************************************************************
+	-			Copyright © 2016/2017 L4D2			   -
+	----------------------------------------------------
+	- Aiming Teleport Player | Телепорт игрока в точку -
+	----------------------------------------------------
 	
-	[*] Описание:
+	Support forum:: http://amx-x.ru/viewtopic.php?f=11&t=35965&p=293990
+	GitHub: 
+	
+	~~~~~~~~~~~~~~
+	- Changelog: -
+	~~~~~~~~~~~~~~
+		v 0.4.2 - First Release
+		v 0.5.1 - Add support Zombie Plague
+		v 0.5.2.2 - Fixed to Sky bugs Thanks for Subb98
+		v 0.5.2a - Refactoring
+	
+	~~~~~~~~~~~~~~~~~
+	- [*] Описание: -
+	~~~~~~~~~~~~~~~~~
 		- Телерот как для Паблик/классика так и для других модов, присутствует поддержка ZP мода.
 		- Чтобы включить/выключить поддержку для ZP мода, раскоментируйте: #define ZP_SUPPORT По дефолту: //#define ZP_SUPPORT
 		- Если вы используете для ZP мода, то в экстра итемах покупка доступна для Людей.
 	
-	Для телепортирования, наведите прицел и нажмите кнопку.
-	Чтобы телепортироваться, нужно забиндить кнопку: bind "Ваша кнопка" teleport (bind f teleport)
-*/	
+	[~] Чтобы телепортироваться, нужно забиндить кнопку: bind "Ваша кнопка" teleport (bind f teleport)
+*********************************************************************************************/	
 
 #include <amxmodx>
 #include <fakemeta>
@@ -25,17 +38,17 @@
 #endif
 
 #if defined ZP_SUPPORT
-// Item ID
-new g_teleport;
+	// Item ID
+	new g_teleport;
 
-// Название итема в меню
-new const g_item_name[] = "Teleport";
+	// Name Item
+	new const g_item_name[] = "Teleport";
 
-// Цена за паки
-new const COST = 10;
+	// Cost ammo
+	new const COST = 10;
 
-// Какой из сторон ZP мода доступно
-new const g_extra_team = ZP_TEAM_HUMAN;	// ZP_TEAM_HUMAN - Люди | ZP_TEAM_ZOMBIE - Зомби
+	// Extra Team
+	new const g_extra_team = ZP_TEAM_HUMAN;	// ZP_TEAM_HUMAN - Люди | ZP_TEAM_ZOMBIE - Зомби
 #endif
 
 // Game Variables
@@ -49,23 +62,15 @@ new pcv_teleport_limit, pcv_teleport_cooldown;
 // Sprite Index
 new BubbleSprite;
 
-// Plugin Initialization
 public plugin_init() {
-	// Plugin Call
-	register_plugin("[All mods] Teleport Player", "0.5.2.2", "L4D2");
+	register_plugin("[All mods] Teleport Player", "0.5.2a", "L4D2");
 	
-	// Client Command
 	register_clcmd("teleport", "ActivTeleport");
 	
 	#if defined ZP_SUPPORT
-	
+		g_teleport = zp_register_extra_item(g_item_name, COST, g_extra_team);
 	#else
-	register_clcmd("say /t", "extra_buy_item");
-	#endif
-	
-	#if defined ZP_SUPPORT
-	// Register new extra item
-	g_teleport = zp_register_extra_item(g_item_name, COST, g_extra_team);
+		register_clcmd("say /t", "extra_buy_item");
 	#endif
 	
 	// CVARs
@@ -73,7 +78,6 @@ public plugin_init() {
 	pcv_teleport_cooldown = register_cvar("zp_teleport_cooldown", "10");	// Через какое n время можно телепортироваться
 }
 
-// Precache Files
 public plugin_precache() {
 	// Teleport Sound
 	precache_sound("warcraft3/blinkarrival.wav");
@@ -83,51 +87,47 @@ public plugin_precache() {
 }
 
 #if defined ZP_SUPPORT
-// New round started - remove all teleports
-public zp_round_started(gamemode, id) {
-	// On round start client cannot have our extra item
-	if(hasTeleport[id]) return;
-}
+	public zp_round_started(gamemode, id) if(hasTeleport[id]) return;
 #endif
 
 public extra_buy_item(owner) {
 	hasTeleport[owner] = true;
 	teleport_counter = 0;
-	client_print(owner, print_chat, "Введите в консоль: bind ваша кнопка key Пример:(bind f teleport)");
+	client_print(owner, print_chat, "Введите в консоль: bind key teleport Пример:(bind f teleport)");
 }
 
 #if defined ZP_SUPPORT
-// Player bought our item...
-public zp_extra_item_selected(owner, itemid) {
-	if (itemid == g_teleport) {
-		if (hasTeleport[owner]) {
-			client_print(owner, print_center, "Куплено.");
-			hasTeleport[owner] = false;
-		} else {
-			hasTeleport[owner] = true;
-			teleport_counter = 0;
-			client_print(owner, print_chat, "[ZP] Введите в консоль: bind ваша кнопка key Пример:(bind f teleport)");
+	public zp_extra_item_selected(owner, itemid) {
+		if(itemid == g_teleport) {
+			if(hasTeleport[owner]) {
+				client_print(owner, print_center, "Куплено");
+				hasTeleport[owner] = false;
+			} else {
+				hasTeleport[owner] = true;
+				teleport_counter = 0;
+				client_print(owner, print_chat, "[ZP] Введите в консоль: bind key teleport Пример:(bind f teleport)");
+			}
 		}
 	}
-}
 #endif
 
 // Activate Teleport
 public ActivTeleport(id) {
+	if(!is_user_alive(id) && !is_user_connected(id)) return PLUGIN_CONTINUE;
+	
 	// For some reason zombie or survivor or nemesis has teleport
 	#if defined ZP_SUPPORT
-	if(zp_get_user_zombie(id) || zp_get_user_survivor(id) || zp_get_user_nemesis(id))
-		return PLUGIN_CONTINUE;
+		if(zp_get_user_zombie(id) || zp_get_user_survivor(id) || zp_get_user_nemesis(id)) return PLUGIN_CONTINUE;
 	#endif
 	
 	// Check if player has bought teleport
-	if (!hasTeleport[id]) {
-		client_print(id, print_center, "Для использование телепорта Купите через меню!");
+	if(!hasTeleport[id]) {
+		client_print(id, print_center, "Купите телепорт, чтобы им воспользоваться");
 		return PLUGIN_CONTINUE;
 	}
 	
 	// Teleport cooldown not over	
-	if (get_gametime() - g_lastusetime[id] < get_pcvar_float(pcv_teleport_cooldown)) {
+	if(get_gametime() - g_lastusetime[id] < get_pcvar_float(pcv_teleport_cooldown)) {
 		client_print(id, print_center, "Перезарядка: %.fc", get_pcvar_float(pcv_teleport_cooldown) - ( get_gametime() - g_lastusetime[id] ));
 		return PLUGIN_CONTINUE;
 	}
@@ -189,7 +189,7 @@ public ActivTeleport(id) {
 	
 	// Check if user has reached limit
 	new teleport_limit = get_pcvar_num(pcv_teleport_limit);
-	if (teleport_counter == teleport_limit) hasTeleport[id] = false;
+	if(teleport_counter == teleport_limit) hasTeleport[id] = false;
 	
 	return PLUGIN_CONTINUE;
 }
